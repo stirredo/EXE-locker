@@ -91,7 +91,7 @@ class Ui_MainDialog(object):
 "}\n"
 "\n"
 "#lockButton:disabled {\n"
-"    backgroud-color: #E3F2FD;\n"
+"    background-color: #E3F2FD;\n"
 "    border-color: #BBDEFB;\n"
 "}")
         icon1 = QtGui.QIcon()
