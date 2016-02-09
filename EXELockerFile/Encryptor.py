@@ -5,53 +5,26 @@ from Crypto import Random
 
 
 class EncryptedFile(object):
-    def __init__(self, checksum=None, fileName=None, IV=None, encryptedData=None):
-        self.encryptedData = encryptedData
-        self.checksum = checksum
-        self.fileName = fileName
-        self.IV = IV
+    def __init__(self, encryptedFileName):
+        pass
 
 
-    def _encryptText(self, message, key, iv):
-        # iv = Random.new().read(AES.block_size)
-        aes = AES.new(key, AES.MODE_CBC, iv)
-        return aes.encrypt(message)
 
     @staticmethod
-    def decryptText(ciphertext, key, iv):
-        aes = AES.new(key, AES.MODE_CBC, iv)
-        return aes.decrypt(ciphertext)
-
-    @staticmethod
-    def createEncryptedFile(key, infile, outfile):
-        encryptedFile = EncryptedFile()
-        encryptedFile.setFileName(infile)
-
-        try:
-            chunksize = 64 * 1024  # read 64kb from file at one time
-            hashedKey = encryptedFile.getHashedKey(key)
+    def createEncryptedFile(unencryptedFileName, key):
+        if os.path.exists(unencryptedFileName):
             checksum = SHA256.new()
-            iv = EncryptedFile.getIV()
-            aes = AES.new(key, AES.MODE_CBC, iv)
+            chunksize = 64 * 1024 # read 64 Kilo bytes at a time
 
-            infileHandle = open(infile, 'rb')
-            outfileHandle = open(outfile, 'wb')
-            data = infileHandle.read(chunksize)
+            infile = open(unencryptedFileName, "rb")
+            data = infile.read(chunksize)
             while data != "":
-                checksum.update(data)
+                checksum
 
 
-        except IOError as e:
-            print "I/O error ({0}: {1})".format(e.errno, e.strerror)
 
 
-    def setFileName(self, fileName):
-        if os.path.exists(fileName):
-            self.fileName = fileName
         else:
             raise Exception("File does not exist")
- 
-    def setChecksum(self, hexDigest):
-        self.checksum = hexDigest
 
 
