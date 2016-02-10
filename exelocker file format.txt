@@ -1,0 +1,7 @@
+File format:
+0. Magic number = EXELOCKER1 (10 bytes)
+1. SHA256 checksum of the original file data (32 bytes)
+2. filename with encryption before encryption (255 bytes)
+3. iv (16 bytes)
+4. Data (variable length)
+
