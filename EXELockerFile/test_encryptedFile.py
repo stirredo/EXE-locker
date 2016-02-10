@@ -11,9 +11,9 @@ class TestEncryptedFile(TestCase):
     def test_createEncryptedFile(self):
         filePath = r"G:\work\EXE locker\EXE_locker\test_file\prog.py"
         encryptedFilePath = r"G:\work\EXE locker\EXE_locker\test_file\prog.exelocker"
-        EncryptedFile.createEncryptedFile(filePath, "password")
+        file = EncryptedFile.createEncryptedFile(filePath, "password")
         self.assertTrue(os.path.exists(encryptedFilePath))
-
+        self.assertIsInstance(file, EncryptedFile)
 
 
     def test_isValidFile(self):

@@ -79,7 +79,8 @@ class EncryptedFile(object):
             infile.close()
 
             # if everything is successful, return EncryptedFile object
-
+            return EncryptedFile(outfileName)
 
         else:
             raise Exception("File does not exist")
+
