@@ -4,19 +4,31 @@ from Encryptor import EncryptedFile
 from EncryptionHelper import EncryptionHelper
 from Crypto import Random
 from Crypto.Cipher import AES
+import os
+
+
 class TestEncryptedFile(TestCase):
-
-    def test_encryption(self):
-        message = EncryptionHelper.padString("hello")
-        key = EncryptionHelper.generateKeyHash("mykey")
-        iv = EncryptionHelper.generateIV()
-        cipher = EncryptedFile.encryptText(message, key, iv)
-        message = EncryptedFile.decryptText(cipher, key, iv)
-        self.assertEquals(EncryptedFile.stripPadding(message), "hello")
+    def test_createEncryptedFile(self):
+        filePath = r"G:\work\EXE locker\EXE_locker\test_file\prog.py"
+        encryptedFilePath = r"G:\work\EXE locker\EXE_locker\test_file\prog.exelocker"
+        EncryptedFile.createEncryptedFile(filePath, "password")
+        self.assertTrue(os.path.exists(encryptedFilePath))
 
 
 
+    def test_isValidFile(self):
+        validFilePath = r"G:\work\EXE locker\EXE_locker\test_file\prog.exelocker"
+        invalidFile = r"G:\work\EXE locker\EXE_locker\test_file\prog.py"
+        self.assertTrue(EncryptedFile.isValidFile(validFilePath))
+        self.assertFalse(EncryptedFile.isValidFile(invalidFile))
 
+    def test_decryptFile(self):
+        validFilePath = r"G:\work\EXE locker\EXE_locker\test_file\prog.exelocker"
+        eFile = EncryptedFile(validFilePath)
+        password = EncryptionHelper.generateKeyHash("password")
+        eFile.decryptFile(password)
+        self.assertTrue(os.path.exists(eFile.getOriginalFileName()))
 
 if __name__ == "__main__":
     unittest.main()
+

@@ -35,6 +35,7 @@ class EncryptionHelper(object):
 
         while data != "":
             checksum.update(data)
+            data = infile.read(chunksize)
 
         return checksum.digest()
 
@@ -44,13 +45,11 @@ class EncryptionHelper(object):
         cipher = a.encrypt(message)
         return cipher
 
-
     @staticmethod
     def decryptCipher(cipher, key, iv):
         a = AES.new(key, AES.MODE_CBC, iv)
         message = a.decrypt(cipher)
         return message
-
 
     @staticmethod
     def getIV(cipher):
