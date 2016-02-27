@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dialog.ui'
 #
-# Created: Sun Jan 17 18:58:05 2016
+# Created: Fri Feb 26 22:16:56 2016
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -53,7 +53,9 @@ class Ui_MainDialog(object):
         self.step1GroupBox.setFlat(False)
         self.step1GroupBox.setObjectName("step1GroupBox")
         self.locationLineEdit = QtGui.QLineEdit(self.step1GroupBox)
+        self.locationLineEdit.setEnabled(True)
         self.locationLineEdit.setGeometry(QtCore.QRect(20, 40, 251, 31))
+        self.locationLineEdit.setReadOnly(True)
         self.locationLineEdit.setObjectName("locationLineEdit")
         self.pickFileButton = QtGui.QPushButton(self.step1GroupBox)
         self.pickFileButton.setGeometry(QtCore.QRect(280, 40, 91, 31))
@@ -109,38 +111,29 @@ class Ui_MainDialog(object):
 "    font-size: 24px;\n"
 "}")
         self.groupBox.setObjectName("groupBox")
-        self.passwordRadio = QtGui.QRadioButton(self.groupBox)
-        self.passwordRadio.setGeometry(QtCore.QRect(30, 40, 111, 17))
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        self.passwordRadio.setFont(font)
-        self.passwordRadio.setObjectName("passwordRadio")
-        self.timeRadio = QtGui.QRadioButton(self.groupBox)
-        self.timeRadio.setGeometry(QtCore.QRect(150, 40, 141, 17))
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        self.timeRadio.setFont(font)
-        self.timeRadio.setObjectName("timeRadio")
         self.stackedWidget = QtGui.QStackedWidget(self.groupBox)
-        self.stackedWidget.setGeometry(QtCore.QRect(30, 70, 341, 241))
+        self.stackedWidget.setGeometry(QtCore.QRect(20, 30, 351, 271))
         self.stackedWidget.setObjectName("stackedWidget")
         self.page = QtGui.QWidget()
         self.page.setObjectName("page")
         self.passwordLineEdit = QtGui.QLineEdit(self.page)
-        self.passwordLineEdit.setGeometry(QtCore.QRect(20, 30, 201, 20))
+        self.passwordLineEdit.setGeometry(QtCore.QRect(20, 30, 261, 31))
+        self.passwordLineEdit.setEchoMode(QtGui.QLineEdit.Password)
         self.passwordLineEdit.setObjectName("passwordLineEdit")
         self.passwordAgainLineEdit = QtGui.QLineEdit(self.page)
-        self.passwordAgainLineEdit.setGeometry(QtCore.QRect(20, 80, 201, 20))
+        self.passwordAgainLineEdit.setGeometry(QtCore.QRect(20, 100, 261, 31))
+        self.passwordAgainLineEdit.setEchoMode(QtGui.QLineEdit.Password)
         self.passwordAgainLineEdit.setObjectName("passwordAgainLineEdit")
         self.label_2 = QtGui.QLabel(self.page)
         self.label_2.setGeometry(QtCore.QRect(20, 10, 111, 16))
+        self.label_2.setStyleSheet("font: 75 10pt \"Segoe UI\";")
         self.label_2.setObjectName("label_2")
         self.label_3 = QtGui.QLabel(self.page)
-        self.label_3.setGeometry(QtCore.QRect(20, 60, 121, 16))
-        self.label_3.setStyleSheet("")
+        self.label_3.setGeometry(QtCore.QRect(20, 80, 131, 16))
+        self.label_3.setStyleSheet("font: 75 10pt \"Segoe UI\";")
         self.label_3.setObjectName("label_3")
         self.label_4 = QtGui.QLabel(self.page)
-        self.label_4.setGeometry(QtCore.QRect(20, 110, 271, 31))
+        self.label_4.setGeometry(QtCore.QRect(20, 170, 271, 31))
         self.label_4.setStyleSheet("color: red;\n"
 "font-size: 14px;")
         self.label_4.setObjectName("label_4")
@@ -187,8 +180,6 @@ class Ui_MainDialog(object):
         self.pickFileButton.setText(QtGui.QApplication.translate("MainDialog", "Pick EXE File", None, QtGui.QApplication.UnicodeUTF8))
         self.lockButton.setText(QtGui.QApplication.translate("MainDialog", "Lock EXE", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox.setTitle(QtGui.QApplication.translate("MainDialog", "Lock Options", None, QtGui.QApplication.UnicodeUTF8))
-        self.passwordRadio.setText(QtGui.QApplication.translate("MainDialog", "Password", None, QtGui.QApplication.UnicodeUTF8))
-        self.timeRadio.setText(QtGui.QApplication.translate("MainDialog", "Time Based", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("MainDialog", "Enter Password", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("MainDialog", "Enter Password again", None, QtGui.QApplication.UnicodeUTF8))
         self.label_4.setText(QtGui.QApplication.translate("MainDialog", "Password and Password again must match.", None, QtGui.QApplication.UnicodeUTF8))
@@ -196,4 +187,5 @@ class Ui_MainDialog(object):
         self.warningLabel.setText(QtGui.QApplication.translate("MainDialog", "Remember, if you lose the password, you lose the file.", None, QtGui.QApplication.UnicodeUTF8))
         self.checkBox.setText(QtGui.QApplication.translate("MainDialog", "Make a backup of the exe as .exe.old file (Check for testing)", None, QtGui.QApplication.UnicodeUTF8))
 
+import resources_rc
 import resources_rc
