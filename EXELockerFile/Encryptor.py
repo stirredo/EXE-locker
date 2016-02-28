@@ -1,6 +1,6 @@
 import os
 from EncryptionHelper import EncryptionHelper
-
+import ntpath
 
 class EncryptedFile(object):
     MAGIC_NUMBER = "EXELocker1"
@@ -18,9 +18,9 @@ class EncryptedFile(object):
             raise Exception("File does not exist or not a valid EXELocker File.")
 
     def getOriginalFileName(self):
-        return self._filename
+        return ntpath.basename(self._filename)
 
-    def decryptFile(self, key):
+    def decryptFile(self,  key):
         #self._moveHandleToData()
         outfile = open(self.getOriginalFileName(), "wb")
         data = self._handle.read(EncryptedFile._CHUNK_SIZE)
@@ -52,13 +52,14 @@ class EncryptedFile(object):
 
 
     @staticmethod
-    def createEncryptedFile(unencryptedFileName, key):
+    def createEncryptedFile(unencryptedFileName, key, makeBackup = False, deleteOriginal= False):
         if os.path.exists(unencryptedFileName):
             checksum = EncryptionHelper.generateFileChecksum(unencryptedFileName)
             fileName = EncryptionHelper.padString(unencryptedFileName, 255)
             iv = EncryptionHelper.generateIV()
             key = EncryptionHelper.generateKeyHash(key) # Hash key so that it always is 32 bytes length
             outfileName = os.path.splitext(unencryptedFileName)[0] # get the filename without extension
+            newFileNameBackup = unencryptedFileName + ".old"
             outfileName = outfileName + ".exelocker"
             outfile = open(outfileName, "wb")
             outfile.write(EncryptedFile.MAGIC_NUMBER)  # 10 bytes that will help detect file
@@ -78,9 +79,20 @@ class EncryptedFile(object):
             outfile.close()
             infile.close()
 
+            if makeBackup and deleteOriginal:
+                pass
+            elif makeBackup:
+                os.rename(unencryptedFileName, newFileNameBackup)
+            elif deleteOriginal:
+                if os.path.exists(outfileName):
+                    os.remove(outfileName)
+
+
+
             # if everything is successful, return EncryptedFile object
             return EncryptedFile(outfileName)
 
         else:
             raise Exception("File does not exist")
+
 

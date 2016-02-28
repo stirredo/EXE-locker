@@ -7,24 +7,18 @@ from PySide.QtCore import QThread, SIGNAL, Qt, Signal, QObject
 from PySide.QtGui import QDialog, QApplication, QMessageBox, QFileDialog
 
 import ui_maindialog
+from EXELockerFile.Encryptor import EncryptedFile
+import admin
 
 __appname__ = "EXE Locker"
-threadDone = QtCore.Signal()
-class FileEncryptionDone(QObject):
-    signal = QtCore.Signal()
-
-    def __init__(self):
-        super(FileEncryptionDone, self).__init__()
-
-    def emitSignal(self):
-        self.signal.emit()
-
-# signal = FileEncryptionDone()
 
 class LockerDialog(QDialog, ui_maindialog.Ui_MainDialog):
     signal = Signal(str)
+
     def __init__(self, parent=None):
         super(LockerDialog, self).__init__(parent)
+        if not admin.isUserAdmin():
+            admin.runAsAdmin()
         self.setupUi(self)
         self.setWindowFlags(QtCore.Qt.WindowSystemMenuHint | QtCore.Qt.WindowTitleHint)
         self.setFixedSize(self.width(), self.height())
@@ -83,8 +77,11 @@ class LockerDialog(QDialog, ui_maindialog.Ui_MainDialog):
         fileName = self.locationLineEdit.text()
         if len(self.locationLineEdit.text()) == 0 or self.locationLineEdit.text() == None:
             QMessageBox.information(self, __appname__, "Pick an exe file first to lock.")
+            self.showFileDialog()
         else:
-            self.workerThread = WorkerThread(fileName, self.signal)
+            password = self.passwordLineEdit.text()
+            makeBackup = self.checkBox.isChecked()
+            self.workerThread = WorkerThread(fileName, password, self.signal, makeBackup)
             self.lockButton.setText("Working")
             self.lockButton.setEnabled(False)
             self.groupBox.setEnabled(False)
@@ -93,13 +90,14 @@ class LockerDialog(QDialog, ui_maindialog.Ui_MainDialog):
 
 
 class WorkerThread(QThread):
-    def __init__(self, fileName, signal, parent=None):
+    def __init__(self, fileName, password, signal, makeBackup = False, parent=None):
         super(WorkerThread, self).__init__(parent)
         self.fileName = fileName
         self.signal = signal
-
+        self.password = password
+        self.makeBackup = makeBackup
     def run(self):
-        time.sleep(10)
+        file = EncryptedFile.createEncryptedFile(self.fileName, self.password, makeBackup=self.makeBackup)
         self.signal.emit(self.fileName)
 
 

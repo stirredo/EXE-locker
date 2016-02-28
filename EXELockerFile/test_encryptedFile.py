@@ -23,7 +23,7 @@ class TestEncryptedFile(TestCase):
         self.assertFalse(EncryptedFile.isValidFile(invalidFile))
 
     def test_decryptFile(self):
-        validFilePath = r"G:\work\EXE locker\EXE_locker\test_file\prog.exelocker"
+        validFilePath = r"G:\work\EXE locker\EXE_locker\test_file\BTSync.exelocker"
         eFile = EncryptedFile(validFilePath)
         password = EncryptionHelper.generateKeyHash("password")
         eFile.decryptFile(password)

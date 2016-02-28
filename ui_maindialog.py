@@ -105,7 +105,7 @@ class Ui_MainDialog(object):
         self.groupBox.setEnabled(True)
         self.groupBox.setGeometry(QtCore.QRect(20, 220, 381, 361))
         font = QtGui.QFont()
-        font.setPointSize(-1)
+        font.setPointSize(1)
         self.groupBox.setFont(font)
         self.groupBox.setStyleSheet("QGroupBox {\n"
 "    font-size: 24px;\n"
@@ -158,7 +158,7 @@ class Ui_MainDialog(object):
         self.warningLabel = QtGui.QLabel(self.frame_2)
         self.warningLabel.setGeometry(QtCore.QRect(10, 10, 301, 41))
         font = QtGui.QFont()
-        font.setPointSize(-1)
+        font.setPointSize(1)
         self.warningLabel.setFont(font)
         self.warningLabel.setStyleSheet("#warningLabel {\n"
 "    font-size: 16px;\n"
@@ -187,5 +187,4 @@ class Ui_MainDialog(object):
         self.warningLabel.setText(QtGui.QApplication.translate("MainDialog", "Remember, if you lose the password, you lose the file.", None, QtGui.QApplication.UnicodeUTF8))
         self.checkBox.setText(QtGui.QApplication.translate("MainDialog", "Make a backup of the exe as .exe.old file (Check for testing)", None, QtGui.QApplication.UnicodeUTF8))
 
-import resources_rc
 import resources_rc
