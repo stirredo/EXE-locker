@@ -1,7 +1,7 @@
 import os
 import sys
 
-from PySide.QtCore import QThread
+from PySide.QtCore import QThread, QObject
 
 from EXELockerFile.EncryptionHelper import EncryptionHelper
 from ui_unlockdialog import Ui_Dialog
@@ -77,8 +77,8 @@ class UnlockDialog(QDialog, Ui_Dialog):
             self.setUnlockTextLabel(self.fileName)
 
     def fileUnlockedEvent(self, success, decryptedFileName):
-        if self.worker.isRunning():
-            self.worker.quit()
+        # if self.worker.isRunning():
+        #     self.worker.quit()
         if success == 'True':
             QMessageBox.information(self, __appname__, "File Unlocked Successfully.")
         else:
@@ -90,8 +90,16 @@ class UnlockDialog(QDialog, Ui_Dialog):
             eFile = EncryptedFile(self.fileName)
             unhashedPassword = self.passwordLineEdit.text()
             password = EncryptionHelper.generateKeyHash(unhashedPassword)
-            self.worker = WorkerThread(eFile, password, self.signal)
-            self.worker.start()
+            self.thread = QThread()
+            self.worker = Worker(eFile, password, self.signal)
+            self.worker.moveToThread(self.thread)
+            self.thread.started.connect(self.worker.run)
+            self.worker.signal.connect(self.thread.quit)
+            self.worker.signal.connect(self.worker.deleteLater)
+            self.thread.finished.connect(self.thread.deleteLater)
+            self.thread.start()
+
+
 
         else:
             QMessageBox.information(self, __appname__, "Invalid .exelocker file.")
@@ -103,9 +111,9 @@ class UnlockDialog(QDialog, Ui_Dialog):
 
         return None
 
-class WorkerThread(QThread):
+class Worker(QObject):
     def __init__(self, unencryptedFile, password, signal, parent=None):
-        super(WorkerThread, self).__init__(parent)
+        super(Worker, self).__init__(parent)
         self.decryptedFileName = unencryptedFile.getOriginalFileName()
         self.unencryptedFile = unencryptedFile
         self.signal = signal
