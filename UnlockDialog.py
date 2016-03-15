@@ -77,8 +77,6 @@ class UnlockDialog(QDialog, Ui_Dialog):
             self.setUnlockTextLabel(self.fileName)
 
     def fileUnlockedEvent(self, success, decryptedFileName):
-        # if self.worker.isRunning():
-        #     self.worker.quit()
         if success == 'True':
             QMessageBox.information(self, __appname__, "File Unlocked Successfully.")
         else:
@@ -98,11 +96,11 @@ class UnlockDialog(QDialog, Ui_Dialog):
             self.worker.signal.connect(self.worker.deleteLater)
             self.thread.finished.connect(self.thread.deleteLater)
             self.thread.start()
-
-
-
         else:
             QMessageBox.information(self, __appname__, "Invalid .exelocker file.")
+        self.passwordLineEdit.setText("")
+
+
 
     def _getRelevantCmdArgument(self, args):
         for arg in args:
