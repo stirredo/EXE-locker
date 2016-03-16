@@ -7,6 +7,7 @@ class EncryptedFile(object):
     _CHUNK_SIZE = 64 * 1024 # 64 kilo bytes
     def __init__(self, encryptedFileName):
         if os.path.exists(encryptedFileName) and EncryptedFile.isValidFile(encryptedFileName):
+            self.encryptedFileName = encryptedFileName
             self._handle = open(encryptedFileName, "rb")
             self._handle.read(10) # skip reading magic number
             self._checksum = self._handle.read(32) # read 32 bytes checksum from file
@@ -18,11 +19,16 @@ class EncryptedFile(object):
             raise Exception("File does not exist or not a valid EXELocker File.")
 
     def getOriginalFileName(self):
-        return ntpath.basename(self._filename)
+            # return just the filename without the original directory
+            return ntpath.basename(self._filename)
 
-    def decryptFile(self,  key):
-        #self._moveHandleToData()
-        outfile = open(self.getOriginalFileName(), "wb")
+    def decryptFile(self,  key, sameLocation = False):
+        if sameLocation == False:
+            outfile = open(self.getOriginalFileName(), "wb")
+        else:
+            outfileName = os.path.join(os.path.dirname(self.encryptedFileName), self.getOriginalFileName())
+            outfile = open(outfileName, "wb")
+            # change the name of the encryptedFileName because right now it will be .exelocker file, change it to original extension
         data = self._handle.read(EncryptedFile._CHUNK_SIZE)
         cycle = 1
         while data != "":
@@ -32,6 +38,7 @@ class EncryptedFile(object):
             outfile.write(message)
             cycle = cycle + 1
             data = self._handle.read(EncryptedFile._CHUNK_SIZE)
+
 
 
     def _moveHandleToData(self):
