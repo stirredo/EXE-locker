@@ -27,8 +27,11 @@ class UnlockDialog(QDialog, Ui_Dialog):
         if fileArgPos != None:
             self.fileName = sys.argv[fileArgPos]
             self.stackedWidget.setCurrentIndex(0)
+            self.setUnlockTextLabel(self.fileName)
+            self.sameLocation = False
         else:
             self.fileName = None
+            self.sameLocation = True
             self.stackedWidget.setCurrentIndex(1)
             self.fillListWidget()
 
@@ -89,7 +92,7 @@ class UnlockDialog(QDialog, Ui_Dialog):
             unhashedPassword = self.passwordLineEdit.text()
             password = EncryptionHelper.generateKeyHash(unhashedPassword)
             self.thread = QThread()
-            self.worker = Worker(eFile, password, self.signal)
+            self.worker = Worker(eFile, password, self.signal, self.sameLocation)
             self.worker.moveToThread(self.thread)
             self.thread.started.connect(self.worker.run)
             self.worker.signal.connect(self.thread.quit)
@@ -110,15 +113,16 @@ class UnlockDialog(QDialog, Ui_Dialog):
         return None
 
 class Worker(QObject):
-    def __init__(self, unencryptedFile, password, signal, parent=None):
+    def __init__(self, unencryptedFile, password, signal, sameLocation = False, parent=None):
         super(Worker, self).__init__(parent)
         self.decryptedFileName = unencryptedFile.getOriginalFileName()
         self.unencryptedFile = unencryptedFile
         self.signal = signal
         self.password = password
+        self.sameLocation = sameLocation
 
     def run(self):
-        self.unencryptedFile.decryptFile(self.password)
+        self.unencryptedFile.decryptFile(self.password, self.sameLocation)
         checksum = EncryptionHelper.generateFileChecksum(self.decryptedFileName)
         if checksum == self.unencryptedFile.getChecksum():
             self.signal.emit('True', self.decryptedFileName)
