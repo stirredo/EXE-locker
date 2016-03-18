@@ -29,6 +29,14 @@ class UnlockDialog(QDialog, Ui_Dialog):
             self.stackedWidget.setCurrentIndex(0)
             self.setUnlockTextLabel(self.fileName)
             self.sameLocation = False
+        elif self._checkScriptNameInFolder():
+            scriptName = os.path.basename(__file__)
+            # get the script name without file extension
+            scriptName = os.path.splitext(scriptName)[0] + ".exelocker"
+            self.fileName = os.path.basename(scriptName)
+            self.sameLocation = True
+            self.setUnlockTextLabel(self.fileName)
+            self.stackedWidget.setCurrentIndex(0)
         else:
             self.fileName = None
             self.sameLocation = True
@@ -48,6 +56,21 @@ class UnlockDialog(QDialog, Ui_Dialog):
         # connect with the thread
         self.signal.connect(self.fileUnlockedEvent)
 
+    def _checkScriptNameInFolder(self):
+        scriptName = os.path.basename(__file__)
+        # get script name without extension
+        scriptName = os.path.splitext(scriptName)[0]
+        # change extension of script name to lock to .exelocker
+        scriptName = scriptName + ".exelocker"
+        fileList = self._getRelevantFilesInFolder()
+        try:
+            index = fileList.index(scriptName)
+        except ValueError:
+            index = None
+        if index != None:
+            return True
+        else:
+            return False
 
     def listWidgetSelectedEvent(self):
         self.fileName = self.listWidget.currentItem().text()
@@ -62,6 +85,10 @@ class UnlockDialog(QDialog, Ui_Dialog):
             self.unlockTextLabel.setText(string)
 
     def fillListWidget(self):
+        filteredList = self._getRelevantFilesInFolder()
+        self.listWidget.addItems(filteredList)
+
+    def _getRelevantFilesInFolder(self):
         files = os.listdir('.')
         filteredList = []
         for f in files:
@@ -69,7 +96,7 @@ class UnlockDialog(QDialog, Ui_Dialog):
                 extension = os.path.splitext(f)[1]
                 if extension == ".exelocker":
                     filteredList.append(f)
-        self.listWidget.addItems(filteredList)
+        return filteredList
 
     def browseFiles(self):
         dir = "."
