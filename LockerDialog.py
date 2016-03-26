@@ -7,7 +7,7 @@ from PySide.QtCore import QThread, SIGNAL, Qt, Signal, QObject
 from PySide.QtGui import QDialog, QApplication, QMessageBox, QFileDialog
 
 import ui_maindialog
-from EXELockerFile.Encryptor import EncryptedFile
+from EXELockerFile.Encryptor import EncryptedFile, _ISPRODUCTION_
 import admin
 
 __appname__ = "EXE Locker"
@@ -17,8 +17,9 @@ class LockerDialog(QDialog, ui_maindialog.Ui_MainDialog):
 
     def __init__(self, parent=None):
         super(LockerDialog, self).__init__(parent)
-        if not admin.isUserAdmin():
-            admin.runAsAdmin()
+        if _ISPRODUCTION_:
+            if not admin.isUserAdmin():
+              admin.runAsAdmin()
         self.setupUi(self)
         self.setWindowFlags(QtCore.Qt.WindowSystemMenuHint | QtCore.Qt.WindowTitleHint)
         self.setFixedSize(self.width(), self.height())
@@ -97,7 +98,7 @@ class WorkerThread(QThread):
         self.password = password
         self.makeBackup = makeBackup
     def run(self):
-        file = EncryptedFile.createEncryptedFile(self.fileName, self.password, makeBackup=self.makeBackup)
+        file = EncryptedFile.createEncryptedFile(self.fileName, self.password, baseFileLocation=EncryptedFile.CALLER_LOCATION, makeBackup=self.makeBackup)
         self.signal.emit(self.fileName)
 
 

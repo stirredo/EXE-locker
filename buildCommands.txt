@@ -1,0 +1,3 @@
+pyinstaller -F -w -i "J:\Dropbox\work\new work\EXE locker\EXE_locker\images\icon.ico" caller.py
+pyinstaller -F -w -i "J:\Dropbox\work\new work\EXE locker\EXE_locker\images\icon.ico" UnlockerDialog.py
+pyinstaller -D -w -i "J:\Dropbox\work\new work\EXE locker\EXE_locker\images\icon.ico" LockerDialog.py

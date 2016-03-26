@@ -1,5 +1,6 @@
 import os
 import sys
+import psutil
 
 from PySide.QtCore import QThread, QObject
 
@@ -23,48 +24,85 @@ class UnlockDialog(QDialog, Ui_Dialog):
             # end the current instance of the program because it isn't uac. Results in two app windows otherwise.
             sys.exit(0)
         self.setupUi(self)
+        # print psutil.Process(os.getpid()).parent
         fileArgPos = self._getRelevantCmdArgument(sys.argv)
         if fileArgPos != None:
             self.fileName = sys.argv[fileArgPos]
             self.stackedWidget.setCurrentIndex(0)
             self.setUnlockTextLabel(self.fileName)
             self.sameLocation = False
-        elif self._checkScriptNameInFolder():
-            scriptName = os.path.basename(__file__)
-            # get the script name without file extension
-            scriptName = os.path.splitext(scriptName)[0] + ".exelocker"
-            self.fileName = os.path.basename(scriptName)
-            self.sameLocation = True
-            self.setUnlockTextLabel(self.fileName)
-            self.stackedWidget.setCurrentIndex(0)
+        # elif self._checkScriptNameInFolder():
+        #     parentProcessName = psutil.Process(os.getpid()).parent().exe()
+        #     if parentProcessName != "python.exe":
+        #         scriptName = os.path.basename(parentProcessName)
+        #     else:
+        #         scriptName = os.path.basename(__file__)
+        #     # get the script name without file extension
+        #     scriptName = os.path.splitext(scriptName)[0] + ".exelocker"
+        #     self.fileName = os.path.basename(scriptName)
+        #     self.sameLocation = False
+        #     self.setUnlockTextLabel(self.fileName)
+        #     self.stackedWidget.setCurrentIndex(0)
         else:
             self.fileName = None
             self.sameLocation = True
             self.stackedWidget.setCurrentIndex(1)
-            self.fillListWidget()
+            if self._argsHasDirectory():
+                index = self._getRelevantDirectoryArg()
+                self.fillListWidget(sys.argv[index])
+            else:
+                self.fillListWidget()
 
         self.setWindowFlags(QtCore.Qt.WindowSystemMenuHint | QtCore.Qt.WindowTitleHint)
         self.setFixedSize(self.width(), self.height())
 
         # connect the unlock button
         self.unlockButton.clicked.connect(self.unlockFile)
-        self.passwordLineEdit.returnPressed.connect(self.unlockFile)
+        # self.passwordLineEdit.returnPressed.connect(self.unlockFile) # <-- This line of code ruined my whole fucking day
+        # The above line made two events fire when the exelocker filename is same as the script name. I don't fucking understand it. FUCK
         self.browseButton.clicked.connect(self.browseFiles)
         self.listWidgetUnlockButton.clicked.connect(self.listWidgetSelectedEvent)
+
+
+
 
 
         # connect with the thread
         self.signal.connect(self.fileUnlockedEvent)
 
+
+    def _argsHasDirectory(self):
+        """" Check if the argument has a directory """
+        for index, args in enumerate(sys.argv):
+            if os.path.isdir(args):
+                return True
+
+        return None
+
+    def _getRelevantDirectoryArg(self):
+        """ Return the index of the argument which is a directory """
+        for index, args in enumerate(sys.argv):
+            if os.path.isdir(args):
+                return index
+
+        return None
+
+
     def _checkScriptNameInFolder(self):
-        scriptName = os.path.basename(__file__)
+        parentProcessName = psutil.Process(os.getpid()).parent().name()
+        if parentProcessName != "python.exe":
+            scriptName = parentProcessName
+        else:
+            scriptName = os.path.basename(__file__)
         # get script name without extension
         scriptName = os.path.splitext(scriptName)[0]
         # change extension of script name to lock to .exelocker
         scriptName = scriptName + ".exelocker"
+        # print scriptName
         fileList = self._getRelevantFilesInFolder()
         try:
             index = fileList.index(scriptName)
+            print index
         except ValueError:
             index = None
         if index != None:
@@ -84,12 +122,19 @@ class UnlockDialog(QDialog, Ui_Dialog):
             string = u"Enter password for " + fileName + ":"
             self.unlockTextLabel.setText(string)
 
-    def fillListWidget(self):
-        filteredList = self._getRelevantFilesInFolder()
+    def fillListWidget(self, location = None):
+        if location != None:
+            filteredList = self._getRelevantFilesInFolder(location)
+        else:
+            filteredList = self._getRelevantFilesInFolder()
+
         self.listWidget.addItems(filteredList)
 
-    def _getRelevantFilesInFolder(self):
-        files = os.listdir('.')
+    def _getRelevantFilesInFolder(self, location = None):
+        if location == None:
+            files = os.listdir('.')
+        else:
+            files = os.listdir(location)
         filteredList = []
         for f in files:
             if os.path.isfile(f):
@@ -111,6 +156,7 @@ class UnlockDialog(QDialog, Ui_Dialog):
             QMessageBox.information(self, __appname__, "File Unlocked Successfully.")
         else:
             os.remove(decryptedFileName)
+            EncryptedFile.replaceWithUnlockDialog(EncryptedFile.CALLER_LOCATION, decryptedFileName)
             QMessageBox.information(self, __appname__, "Wrong password. Couldn't unlock file.")
 
     def unlockFile(self):
@@ -150,11 +196,18 @@ class Worker(QObject):
 
     def run(self):
         self.unencryptedFile.decryptFile(self.password, self.sameLocation)
-        checksum = EncryptionHelper.generateFileChecksum(self.decryptedFileName)
-        if checksum == self.unencryptedFile.getChecksum():
-            self.signal.emit('True', self.decryptedFileName)
+        if self.sameLocation == True:
+            unencryptedFileDir = os.path.dirname(self.unencryptedFile.getEncryptedFileName())
+            fileName = os.path.join(unencryptedFileDir, self.decryptedFileName)
+            checksum = EncryptionHelper.generateFileChecksum(fileName)
         else:
-            self.signal.emit('False', self.decryptedFileName)
+            fileName = self.decryptedFileName
+            checksum = EncryptionHelper.generateFileChecksum(fileName)
+        if checksum == self.unencryptedFile.getChecksum():
+            self.signal.emit('True', fileName)
+        else:
+            self.signal.emit('False', fileName)
+
 
 app = QApplication(sys.argv)
 unlocker = UnlockDialog()

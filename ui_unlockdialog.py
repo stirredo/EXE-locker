@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'unlock.ui'
 #
-# Created: Mon Mar 07 20:13:07 2016
+# Created: Sun Mar 20 16:41:58 2016
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,10 @@ from PySide import QtCore, QtGui
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(366, 217)
+        Dialog.resize(366, 218)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/images/icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        Dialog.setWindowIcon(icon)
         self.stackedWidget = QtGui.QStackedWidget(Dialog)
         self.stackedWidget.setGeometry(QtCore.QRect(0, 40, 361, 181))
         self.stackedWidget.setObjectName("stackedWidget")
@@ -75,8 +78,6 @@ class Ui_Dialog(object):
         self.label_4.setObjectName("label_4")
 
         self.retranslateUi(Dialog)
-        # custom logic: set the stacked widget index to browse exe locker first
-        # self.stackedWidget.setCurrentIndex(1)
         self.stackedWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 

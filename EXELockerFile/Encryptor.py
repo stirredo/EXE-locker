@@ -1,10 +1,28 @@
 import os
+
+import shutil
+
+import time
+
 from EncryptionHelper import EncryptionHelper
 import ntpath
+import _winreg
+
+
+_ISPRODUCTION_ = False
 
 class EncryptedFile(object):
     MAGIC_NUMBER = "EXELocker1"
     _CHUNK_SIZE = 64 * 1024 # 64 kilo bytes
+    if _ISPRODUCTION_:
+        key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\WOW6432Node\EXELocker\Settings', 0, _winreg.KEY_READ)
+        installLocation = _winreg.QueryValueEx(key, "InstallPath")[0] # returns C:\Program Files (x86)\EXELocker
+        UNLOCK_DIALOG_LOCATION = str(installLocation).strip() + '\\base\\UnlockDialog.exe'
+        CALLER_LOCATION = str(installLocation).strip() + '\\base\\caller.exe'
+    else:
+        UNLOCK_DIALOG_LOCATION = r'.\base\UnlockDialog.exe'
+        CALLER_LOCATION = r'.\base\caller.exe'
+
     def __init__(self, encryptedFileName):
         if os.path.exists(encryptedFileName) and EncryptedFile.isValidFile(encryptedFileName):
             self.encryptedFileName = encryptedFileName
@@ -17,6 +35,10 @@ class EncryptedFile(object):
             self._cycles = (os.stat(encryptedFileName).st_size) / (64 * 1024) # divided by 64kbytes
         else:
             raise Exception("File does not exist or not a valid EXELocker File.")
+
+
+    def getEncryptedFileName(self):
+        return self.encryptedFileName
 
     def getOriginalFileName(self):
             # return just the filename without the original directory
@@ -38,6 +60,7 @@ class EncryptedFile(object):
             outfile.write(message)
             cycle = cycle + 1
             data = self._handle.read(EncryptedFile._CHUNK_SIZE)
+        outfile.close()
 
 
 
@@ -52,14 +75,16 @@ class EncryptedFile(object):
 
     @staticmethod
     def isValidFile(fileName):
-        handle = open(fileName, "rb")
-        magic = handle.read(10)
-        handle.close()
-        return magic == EncryptedFile.MAGIC_NUMBER
-
+        if os.path.isfile(fileName):
+            handle = open(fileName, "rb")
+            magic = handle.read(10)
+            handle.close()
+            return magic == EncryptedFile.MAGIC_NUMBER
+        else:
+            return False
 
     @staticmethod
-    def createEncryptedFile(unencryptedFileName, key, makeBackup = False, deleteOriginal= False):
+    def createEncryptedFile(unencryptedFileName, key, baseFileLocation, makeBackup = False, deleteOriginal= False):
         if os.path.exists(unencryptedFileName):
             checksum = EncryptionHelper.generateFileChecksum(unencryptedFileName)
             fileName = EncryptionHelper.padString(unencryptedFileName, 255)
@@ -86,13 +111,21 @@ class EncryptedFile(object):
             outfile.close()
             infile.close()
 
-            if makeBackup and deleteOriginal:
-                pass
-            elif makeBackup:
-                os.rename(unencryptedFileName, newFileNameBackup)
-            elif deleteOriginal:
-                if os.path.exists(outfileName):
-                    os.remove(outfileName)
+            if makeBackup:
+                if not os.path.exists(newFileNameBackup):
+                    os.rename(unencryptedFileName, newFileNameBackup)
+                EncryptedFile.replaceWithUnlockDialog(baseFileLocation, newFileNameBackup)
+            else:
+                EncryptedFile.replaceWithUnlockDialog(baseFileLocation, unencryptedFileName, removeOriginal=True)
+
+
+            # if makeBackup and deleteOriginal:
+            #     pass
+            # elif makeBackup:
+            #     os.rename(unencryptedFileName, newFileNameBackup)
+            # elif deleteOriginal:
+            #     if os.path.exists(outfileName):
+            #         EncryptedFile.replaceWithUnlockDialog(baseFileLocation, outfileName)
 
 
 
@@ -101,6 +134,20 @@ class EncryptedFile(object):
 
         else:
             raise Exception("File does not exist")
+
+    @staticmethod
+    def replaceWithUnlockDialog(baseFileLocation, toLocationFile, removeOriginal = False):
+        baseFileChecksum = EncryptionHelper.generateFileChecksum(baseFileLocation)
+        toFileChecksum = EncryptionHelper.generateFileChecksum(toLocationFile)
+        if baseFileChecksum != toFileChecksum:
+            toDirLocation = os.path.dirname(toLocationFile)
+            shutil.copy2(baseFileLocation, toDirLocation)
+            fileToBeRenamed = toDirLocation + "/" + os.path.basename(baseFileLocation)
+            fileNameWanted = toDirLocation + "/" + os.path.basename(toLocationFile)
+            # if not removed, os.rename throws up error
+            if removeOriginal:
+                os.remove(fileNameWanted)
+            os.rename(fileToBeRenamed, fileNameWanted)
 
     def getChecksum(self):
         return self._checksum

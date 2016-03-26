@@ -37,6 +37,8 @@ class EncryptionHelper(object):
             checksum.update(data)
             data = infile.read(chunksize)
 
+        infile.close()
+
         return checksum.digest()
 
     @staticmethod
