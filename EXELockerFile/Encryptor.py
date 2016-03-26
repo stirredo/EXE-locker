@@ -9,7 +9,7 @@ import ntpath
 import _winreg
 
 
-_ISPRODUCTION_ = False
+_ISPRODUCTION_ = True
 
 class EncryptedFile(object):
     MAGIC_NUMBER = "EXELocker1"
@@ -112,9 +112,13 @@ class EncryptedFile(object):
             infile.close()
 
             if makeBackup:
-                if not os.path.exists(newFileNameBackup):
+                if os.path.exists(newFileNameBackup):
+                    os.remove(newFileNameBackup)
                     os.rename(unencryptedFileName, newFileNameBackup)
-                EncryptedFile.replaceWithUnlockDialog(baseFileLocation, newFileNameBackup)
+                    EncryptedFile.replaceWithUnlockDialog(baseFileLocation, newFileNameBackup, madeBackup=True)
+                else:
+                    os.rename(unencryptedFileName, newFileNameBackup)
+                    EncryptedFile.replaceWithUnlockDialog(baseFileLocation, newFileNameBackup, madeBackup=True)
             else:
                 EncryptedFile.replaceWithUnlockDialog(baseFileLocation, unencryptedFileName, removeOriginal=True)
 
@@ -136,14 +140,20 @@ class EncryptedFile(object):
             raise Exception("File does not exist")
 
     @staticmethod
-    def replaceWithUnlockDialog(baseFileLocation, toLocationFile, removeOriginal = False):
+    def replaceWithUnlockDialog(baseFileLocation, toLocationFile, removeOriginal = False, madeBackup = False):
         baseFileChecksum = EncryptionHelper.generateFileChecksum(baseFileLocation)
         toFileChecksum = EncryptionHelper.generateFileChecksum(toLocationFile)
         if baseFileChecksum != toFileChecksum:
             toDirLocation = os.path.dirname(toLocationFile)
             shutil.copy2(baseFileLocation, toDirLocation)
             fileToBeRenamed = toDirLocation + "/" + os.path.basename(baseFileLocation)
-            fileNameWanted = toDirLocation + "/" + os.path.basename(toLocationFile)
+            if not madeBackup:
+                fileNameWanted = toDirLocation + "/" + os.path.basename(toLocationFile)
+            else:
+                fileName = ntpath.basename(toLocationFile)
+                fileName = os.path.splitext(fileName)[0] # get filename without the .old at the end
+                fileNameWanted = toDirLocation + "/" + fileName
+
             # if not removed, os.rename throws up error
             if removeOriginal:
                 os.remove(fileNameWanted)
