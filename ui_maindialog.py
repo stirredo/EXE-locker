@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dialog.ui'
 #
-# Created: Fri Feb 26 22:16:56 2016
+# Created: Sun Apr 24 23:56:06 2016
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -105,7 +105,7 @@ class Ui_MainDialog(object):
         self.groupBox.setEnabled(True)
         self.groupBox.setGeometry(QtCore.QRect(20, 220, 381, 361))
         font = QtGui.QFont()
-        font.setPointSize(1)
+        font.setPointSize(-1)
         self.groupBox.setFont(font)
         self.groupBox.setStyleSheet("QGroupBox {\n"
 "    font-size: 24px;\n"
@@ -158,7 +158,7 @@ class Ui_MainDialog(object):
         self.warningLabel = QtGui.QLabel(self.frame_2)
         self.warningLabel.setGeometry(QtCore.QRect(10, 10, 301, 41))
         font = QtGui.QFont()
-        font.setPointSize(1)
+        font.setPointSize(-1)
         self.warningLabel.setFont(font)
         self.warningLabel.setStyleSheet("#warningLabel {\n"
 "    font-size: 16px;\n"
@@ -168,6 +168,11 @@ class Ui_MainDialog(object):
         self.checkBox = QtGui.QCheckBox(self.groupBox)
         self.checkBox.setGeometry(QtCore.QRect(30, 330, 361, 17))
         self.checkBox.setObjectName("checkBox")
+        self.label_6 = QtGui.QLabel(MainDialog)
+        self.label_6.setGeometry(QtCore.QRect(20, 600, 151, 31))
+        self.label_6.setText("")
+        self.label_6.setPixmap(QtGui.QPixmap(":/images/iceapps_logo.png"))
+        self.label_6.setObjectName("label_6")
 
         self.retranslateUi(MainDialog)
         self.stackedWidget.setCurrentIndex(0)

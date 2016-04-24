@@ -20,6 +20,7 @@ class LockerDialog(QDialog, ui_maindialog.Ui_MainDialog):
         if _ISPRODUCTION_:
             if not admin.isUserAdmin():
               admin.runAsAdmin()
+              sys.exit(0)
         self.setupUi(self)
         self.setWindowFlags(QtCore.Qt.WindowSystemMenuHint | QtCore.Qt.WindowTitleHint)
         self.setFixedSize(self.width(), self.height())
