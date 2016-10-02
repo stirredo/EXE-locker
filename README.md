@@ -2,4 +2,4 @@
 Prevents execution of an EXE with a password
 
 
-Website - [EXELocker](http://exelocker.xyz)
+Website - [EXE Locker](http://exelocker.xyz)
